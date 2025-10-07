@@ -13,8 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create reports directory
-        run: mkdir -p reports/owasp_dependency_scan
 
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
@@ -22,13 +20,13 @@ jobs:
           project: "owasp_dependency_scan"
           path: "."
           format: "JSON"
-          out: "reports/owasp_dependency_scan"
+          out: "sca-report"
 
       - name: Upload SCA report
         uses: actions/upload-artifact@v4
         with:
           name: sca-report
-          path: reports/owasp_dependency_scan/owasp_dependency_scan_report.json
+          path: sca-report.json
 
   bandit_scan:
     runs-on: ubuntu-latest
