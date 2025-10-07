@@ -6,26 +6,29 @@ on:
       - master
 
 jobs:
-  owasp_dependency_check:
+  owasp_dependency_scan:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Create reports directory
+        run: mkdir -p reports/owasp_dependency_scan
+
       - name: Run OWASP Dependency Check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: owasp_dependency_scan/Dependency-Check_Action@main
         with:
           project: "owasp_dependency_check"
           path: "."
           format: "JSON"
-          out: "reports/dependency-check"
+          out: "reports/owasp_dependency_scan"
 
       - name: Upload SCA report
         uses: actions/upload-artifact@v4
         with:
           name: sca-report
-          path: reports/dependency-check/dependency-check-report.json
+          path: reports/owasp_dependency_scan/owasp_dependency_scan_report.json
 
   bandit_scan:
     runs-on: ubuntu-latest
