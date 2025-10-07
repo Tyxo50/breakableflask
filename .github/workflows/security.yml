@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
- owasp_dependency_scan:
+  owasp_dependency_scan:
     runs-on: ubuntu-latest
 
     steps:
