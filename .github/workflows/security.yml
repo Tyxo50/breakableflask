@@ -17,9 +17,9 @@ jobs:
         run: mkdir -p reports/owasp_dependency_scan
 
       - name: Run OWASP Dependency Check
-        uses: owasp_dependency_scan/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@main
         with:
-          project: "owasp_dependency_check"
+          project: "owasp_dependency_scan"
           path: "."
           format: "JSON"
           out: "reports/owasp_dependency_scan"
