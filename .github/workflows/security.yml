@@ -20,7 +20,6 @@ jobs:
           project: "owasp_dependency_scan"
           path: "."
           format: "JSON"
-          out: "sca-report"
 
       - name: Upload SCA report
         uses: actions/upload-artifact@v4
