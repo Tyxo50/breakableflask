@@ -1,9 +1,6 @@
 name: SAST Scan
 
 on:
-  pull_request:
-    branches:
-      - master
   push:
     branches:
       - master
