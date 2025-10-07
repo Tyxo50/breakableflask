@@ -40,16 +40,20 @@ jobs:
         
         with: 
           args: --sarif-file-output=snyk.sarif
-          json: true
-
+          
+      - name: Upload SCA report
+        uses: actions/upload-artifact@v4
+        with:
+          name: sca-report
+          path: snyk.sarif
 
         # Runs Snyk Code (SAST) analysis and uploads result into GitHub.
         # Use || true to not fail the pipeline
       - name: Snyk Code test
         run: snyk code test --sarif > snyk-code.sarif || true
 
-      - name: Upload SCA report
+      - name: Upload SAST report
         uses: actions/upload-artifact@v4
         with:
-          name: sca-report
-          path: snyk.sarif
+          name: SAST-report
+          path: snyk-code.sarif
