@@ -25,6 +25,7 @@ ADMIN_SECRET=Random.new().read(32) # need to keep this secret
 APP_NAME = 'My First App'
 APP_VERSION = '0.1 pre pre pre alpha'
 APP_PHILOSOPHY = 'If at first you dont succeed, try, try again!'
+APP_LOL_C_RIGOLO = 'Why did the chicken cross the road? To get to the other side!'
 
 CONFIG = {
     'encrypto_key' : b64encode(KEY),
