@@ -119,27 +119,27 @@ jobs:
 
 
   gitleaks_scan:
-  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    - name: Install Gitleaks CLI
-      run: |
-        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
-        chmod +x gitleaks
-        sudo mv gitleaks /usr/local/bin/
+      - name: Install Gitleaks CLI
+        run: |
+          curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64 -o gitleaks
+          chmod +x gitleaks
+          sudo mv gitleaks /usr/local/bin/
 
-    - name: Run Gitleaks scan (no-git mode)
-      run: |
-        gitleaks detect --source . --no-git --verbose --report-format json --report-path gitleaks-report.json
-      continue-on-error: true  
-    - name: Upload Gitleaks report
-      uses: actions/upload-artifact@v4
-      with:
-        name: secret-report
-        path: gitleaks-report.json
+      - name: Run Gitleaks scan (no-git mode)
+        run: |
+          gitleaks detect --source . --no-git --verbose --report-format json --report-path gitleaks-report.json
+        continue-on-error: true  
+      - name: Upload Gitleaks report
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-report
+          path: gitleaks-report.json
 
