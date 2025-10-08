@@ -1,53 +1,69 @@
-name: Snyk Security
+name: DAST AutoZAP Scan
 
 on:
   push:
-    branches: ["master"]
-  pull_request:
-    branches: ["master"]
-
-permissions:
-  contents: read
+    branches:
+      - master
 
 jobs:
-  snyk:
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
+  AutoZAP:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Set up Snyk CLI
-        uses: snyk/actions/setup@v1
+      - name: Install ZAP
+        run: |
+          wget https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Linux.tar.gz
+          tar -xvf ZAP_2.15.0_Linux.tar.gz
+          ./ZAP_2.15.0/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.disablekey=true &
 
-      # Ton étape python (tu peux garder ou adapter selon ton projet)
-      - name: Set up env 
-        uses: snyk/actions/python-3.12@master 
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }} 
-        with: 
-          args: --sarif-file-output=snyk.sarif
+      - name: Install NVM
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install --lts
+          nvm alias default lts/*
 
-      - name: Upload SCA report
+      - name: Install NPM and Verify
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          npm install -g npm@latest
+          node -v
+          npm -v
+
+      - name: Install Newman
+        run: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          npm install -g newman
+          newman -v
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Installing requirements
+        run: |
+          pip install -r ./scripts/requirements.txt
+
+      - name: Running AutoZap
+        run: |
+          python3 -u ./scripts/auto_zap.py
+
+      - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
-          name: sca-report
-          path: snyk.sarif
+          name: DAST_report_html
+          path: zap_report.html
+          retention-days: 30
 
-      - name: Snyk Code test (SAST)
-        run: snyk code test --sarif > snyk-code.sarif || true
-
-      - name: Upload SAST report
+      - name: Upload JSON Report
         uses: actions/upload-artifact@v4
         with:
-          name: SAST-report
-          path: snyk-code.sarif
-
-      # === NOUVELLE ÉTAPE DAST ===
-      - name: Run Snyk DAST Scan
-        run: snyk test --dast --target=https://github.com/Tyxo50/breakableflask
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          name: DAST_report_json
+          path: zap_report.json
+          retention-days: 30
