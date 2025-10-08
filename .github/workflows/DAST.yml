@@ -1,26 +1,18 @@
-name: "DAST - OWASP ZAP Full Scan"
+name: Snyk DAST Scan
 
 on:
-  workflow_dispatch:      # déclenchement manuel (optionnel)
   push:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
-  zap-full-scan:
+  snyk:
     runs-on: ubuntu-latest
-    env:
-      TARGET_URL: "https://example-test-app.local"
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run ZAP full scan manually with Docker
-        run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw owasp/zap2docker-weekly zap-full-scan.py -t "${TARGET_URL}" -r zap-full-report.html
-
-      - name: Upload ZAP full scan HTML report
-        uses: actions/upload-artifact@v4
+      - uses: actions/checkout@v4
+      - name: Run Snyk DAST Scan
+        uses: snyk/actions/dast@master
         with:
-          name: zap-full-report
-          path: zap-full-report.html
-
+          target-url: 'https://example.com'
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
