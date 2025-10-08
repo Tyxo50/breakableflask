@@ -1,0 +1,24 @@
+name: "DAST - OWASP ZAP Full Scan"
+
+on:
+  workflow_dispatch:      # déclenchement manuel (optionnel)
+  push:
+    branches: [ "master" ]
+
+jobs:
+  zap-full-scan:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_URL: "https://github.com/Tyxo50/breakableflask"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v1
+        with:
+          target: ${{ env.TARGET_URL }}
+          format: 'sarif'
+          output: 'zap-full.sarif'
+          fail_on_alert: 'true'
+          rules_file_name: 'owasp_rules.yml'   # Optionnel, règles personnalisées
