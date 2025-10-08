@@ -11,14 +11,15 @@ jobs:
     env:
       TARGET_URL: "https://github.com/Tyxo50/breakableflask"
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run OWASP ZAP Full Scan
-        uses: zaproxy/action-full-scan@v1
+      - name: Run ZAP full scan manually with Docker
+        run: |
+          docker run --rm -v $(pwd):/zap/wrk/:rw owasp/zap2docker-stable zap-full-scan.py -t "${TARGET_URL}" -r zap-full-report.html
+
+      - name: Upload ZAP full scan HTML report
+        uses: actions/upload-artifact@v4
         with:
-          target: ${{ env.TARGET_URL }}
-          format: 'sarif'
-          output: 'zap-full.sarif'
-          fail_on_alert: 'true'
-          rules_file_name: 'owasp_rules.yml'   # Optionnel, règles personnalisées
+          name: zap-full-report
+          path: zap-full-report.html
