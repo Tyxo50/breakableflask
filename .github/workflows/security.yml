@@ -46,13 +46,13 @@ jobs:
           target: "http://localhost:4000"
           token: ${{ secrets.GITHUB_TOKEN }}
           fail_action: false
-          cmd_options: "-J secret-report.json"
+          cmd_options: "-J dast-report.json"
 
       - name: Upload ZAP JSON report
         uses: actions/upload-artifact@v4
         with:
-          name: secret-report
-          path: secret-report.json
+          name: dast-report
+          path: dast-report.json
 
 
   snyk:
@@ -108,14 +108,14 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit scan with JSON output
-        run: bandit -r . -f json -o dast-report.json 
+        run: bandit -r . -f json -o sast_bandit-report.json 
         continue-on-error: true 
 
       - name: Upload Bandit report
         uses: actions/upload-artifact@v4
         with:
-          name: dast-report
-          path: dast-report.json
+          name: sast_bandit-report
+          path: sast_bandit-report.json
 
 
   gitleaks_scan:
