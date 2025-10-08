@@ -13,6 +13,6 @@ jobs:
       - name: Run Snyk DAST Scan
         uses: snyk/actions/dast@master
         with:
-          target-url: 'https://example.com'
+          target-url: 'https://github.com/Tyxo50/breakableflask'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
