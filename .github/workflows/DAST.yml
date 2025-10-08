@@ -1,18 +1,16 @@
-name: "SOOS DAST Local Scan"
+name: ZAP Baseline Scan
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - master
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
 
 jobs:
-  soos:
-    name: SOOS DAST Analysis
+  zap_baseline:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: read
 
     steps:
       - name: Checkout repository
@@ -21,49 +19,44 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'  # ou autre version selon ton projet
+          python-version: "3.11"  # adapte selon ton projet
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Start web app
+      - name: Start application
         run: |
           python main.py &
-          echo "Waiting for app to start..."
+          echo "Attente que l'application soit prête..."
           for i in {1..30}; do
             if curl -s http://localhost:4000 > /dev/null; then
-              echo "App is up!"
+              echo "L'application est en ligne"
               break
             else
-              echo "Waiting..."
+              echo "En attente..."
               sleep 2
             fi
           done
 
-      - name: Run SOOS DAST Analysis
-        uses: soos-io/soos-dast-github-action@a7eb40b94c1c81eb76b178ba1befdc21823f86fa
+      - name: Run ZAP Baseline
+        uses: zaproxy/action-baseline@v0.14.0
         with:
-          client_id: ${{ secrets.SOOS_CLIENT_ID }}
-          api_key: ${{ secrets.SOOS_API_KEY }}
-          project_name: "mon-app-local"
-          scan_mode: "baseline"
-          target_url: "http://localhost:4000"
-          export_format: "Sarif"
-          export_file_type: "Json"
+          target: "http://localhost:4000"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # options facultatives :
+          # rules_file_name: ".zap/rules.tsv"
+          # cmd_options: "-a"
+          # fail_action: true
+          # docker_name: "ghcr.io/zaproxy/zaproxy:stable"
 
-      - name: Find and rename SARIF file
-        run: |
-          file=$(find . -name "*.sarif.json" | head -n 1)
-          if [ -n "$file" ]; then
-            mv "$file" output.sarif.json
-            echo "Renamed $file to output.sarif.json"
-          else
-            echo "No SARIF file found" && exit 1
-          fi
-
-      - name: Upload SOOS DAST SARIF Report
-        uses: github/codeql-action/upload-sarif@v3
+      # (Optionnel) Si tu veux récupérer le rapport comme artefact
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: output.sarif.json
+          name: zap_scan_reports
+          path: |
+            **/zap_report.html
+            **/zap_report.json
+            **/zap_report.md
