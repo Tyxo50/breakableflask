@@ -1,69 +1,69 @@
-name: DAST AutoZAP Scan
+name: "SOOS DAST Local Scan"
 
 on:
   push:
-    branches:
-      - master
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-  AutoZAP:
+  soos:
+    name: SOOS DAST Analysis
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install ZAP
-        run: |
-          wget https://github.com/zaproxy/zaproxy/releases/download/v2.15.0/ZAP_2.15.0_Linux.tar.gz
-          tar -xvf ZAP_2.15.0_Linux.tar.gz
-          ./ZAP_2.15.0/zap.sh -daemon -host 0.0.0.0 -port 8090 -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config api.disablekey=true &
-
-      - name: Install NVM
-        run: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          nvm install --lts
-          nvm alias default lts/*
-
-      - name: Install NPM and Verify
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          npm install -g npm@latest
-          node -v
-          npm -v
-
-      - name: Install Newman
-        run: |
-          export NVM_DIR="$HOME/.nvm"
-          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-          npm install -g newman
-          newman -v
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.11'  # ou autre version selon ton projet
 
-      - name: Installing requirements
+      - name: Install dependencies
         run: |
-          pip install -r ./ZAP_2.15.0/scripts/requirements.txt
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Running AutoZap
+      - name: Start web app
         run: |
-          python3 -u ./ZAP_2.15.0/scripts/auto_zap.py
+          python main.py &
+          echo "Waiting for app to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:4000 > /dev/null; then
+              echo "App is up!"
+              break
+            else
+              echo "Waiting..."
+              sleep 2
+            fi
+          done
 
-      - name: Upload HTML Report
-        uses: actions/upload-artifact@v4
+      - name: Run SOOS DAST Analysis
+        uses: soos-io/soos-dast-github-action@a7eb40b94c1c81eb76b178ba1befdc21823f86fa
         with:
-          name: DAST_report_html
-          path: zap_report.html
-          retention-days: 30
+          client_id: ${{ secrets.SOOS_CLIENT_ID }}
+          api_key: ${{ secrets.SOOS_API_KEY }}
+          project_name: "mon-app-local"
+          scan_mode: "baseline"
+          target_url: "http://localhost:4000"
+          export_format: "Sarif"
+          export_file_type: "Json"
 
-      - name: Upload JSON Report
-        uses: actions/upload-artifact@v4
+      - name: Find and rename SARIF file
+        run: |
+          file=$(find . -name "*.sarif.json" | head -n 1)
+          if [ -n "$file" ]; then
+            mv "$file" output.sarif.json
+            echo "Renamed $file to output.sarif.json"
+          else
+            echo "No SARIF file found" && exit 1
+          fi
+
+      - name: Upload SOOS DAST SARIF Report
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          name: DAST_report_json
-          path: zap_report.json
-          retention-days: 30
+          sarif_file: output.sarif.json
