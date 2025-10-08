@@ -13,7 +13,6 @@ import sys
 
 
 from flask import Flask, request, make_response, render_template_string
-AWS_SECRET_ACCESS_KEY = "AKIAIOSFODNN7EXAMPLE"
 GITHUB_TOKEN = "ghp_abcdEFGHIJK1234567890lmnopqrstuvwxYZ"
 SLACK_WEBHOOK_URL = "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
 DB_PASSWORD = "superSecret123!"
@@ -26,6 +25,24 @@ APP_NAME = 'My First App'
 APP_VERSION = '0.1 pre pre pre alpha'
 APP_PHILOSOPHY = 'If at first you dont succeed, try, try again!'
 APP_LOL_C_RIGOLO = 'Why did the chicken cross the road? To get to the other side!'
+
+#FALSE API KEYS/SECRETS FOR DEMO PURPOSES
+# fake_secrets.py  — valeurs factices pour tests
+GITHUB_TOKEN        = "ghp_abcdEFGHIJK1234567890lmnopqrstuvwxYZ"
+SNYK_TOKEN          = "snyk_test_01234567-89ab-cdef-0123-456789abcdef"
+SOOS_API_KEY        = "soos_sk_FAKE1234567890abcdef"
+SOOS_CLIENT_ID      = "soos_cid_FAKECLIENTID12345"
+SECRET_REPORT_KEY   = "secret-rpt_0123456789abcdef"
+SCA_REPORT_KEY      = "sca_rpt_abcdef0123456789"
+SAST_REPORT_KEY     = "sast_rpt_FAKE_9876543210"
+DAST_REPORT_KEY     = "dast_rpt_FAKE_0011223344"
+AWS_ACCESS_KEY_ID   = "AKIAFAKEEXAMPLE1234"
+AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+GOOGLE_API_KEY      = "AIzaSyD_FAKE_EXAMPLE-0aBcDEfgHijKlmNoPqRsT"
+STRIPE_SECRET_KEY   = "sk_test_FAKE1234567890abcdef"
+TWILIO_ACCOUNT_SID  = "AC1234567890abcdef1234567890abcdef"
+TWILIO_AUTH_TOKEN   = "f2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7"
+
 
 CONFIG = {
     'encrypto_key' : b64encode(KEY),
