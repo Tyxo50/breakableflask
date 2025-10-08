@@ -48,11 +48,11 @@ jobs:
 
       - name: Installing requirements
         run: |
-          pip install -r ./scripts/requirements.txt
+          pip install -r ./ZAP_2.15.0/scripts/requirements.txt
 
       - name: Running AutoZap
         run: |
-          python3 -u ./scripts/auto_zap.py
+          python3 -u ./ZAP_2.15.0/scripts/auto_zap.py
 
       - name: Upload HTML Report
         uses: actions/upload-artifact@v4
