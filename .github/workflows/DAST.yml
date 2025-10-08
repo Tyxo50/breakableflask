@@ -47,7 +47,10 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fail_action: false
           work_dir: ${{ github.workspace }}/zap_output
-          cmd_options: "-J zap_report.json"
+          cmd_options: "-J zap_output/zap_report.json"
+      
+      - name: Check JSON file exists
+          run: ls -l zap_output/
 
       - name: Upload ZAP JSON report
         uses: actions/upload-artifact@v4
