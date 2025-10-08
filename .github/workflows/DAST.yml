@@ -9,17 +9,18 @@ jobs:
   zap-full-scan:
     runs-on: ubuntu-latest
     env:
-      TARGET_URL: "https://github.com/Tyxo50/breakableflask"
+      TARGET_URL: "https://example-test-app.local"
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run ZAP full scan manually with Docker
         run: |
-          docker run --rm -v $(pwd):/zap/wrk/:rw owasp/zap2docker-stable zap-full-scan.py -t "${TARGET_URL}" -r zap-full-report.html
+          docker run --rm -v $(pwd):/zap/wrk/:rw owasp/zap2docker-weekly zap-full-scan.py -t "${TARGET_URL}" -r zap-full-report.html
 
       - name: Upload ZAP full scan HTML report
         uses: actions/upload-artifact@v4
         with:
           name: zap-full-report
           path: zap-full-report.html
+
